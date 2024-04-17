@@ -2,7 +2,7 @@ import cv2
 import pytesseract
 
 class Model():
-	def __init__(self, img_path):
+	def __init__(self, img_path: str, kernel_shape: tuple = (20, 20)):
 		pytesseract.pytesseract.tesseract_cmd = "C:\\Program Files\\Tesseract-OCR\\tesseract.exe"
 		self.img = cv2.imread(img_path)
 		# Convert the image to gray scale
