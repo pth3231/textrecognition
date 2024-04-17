@@ -3,49 +3,6 @@ from PIL import ImageTk, Image
 from text_reg import Model
 from CTkMessagebox import CTkMessagebox
 
-class AdvancedSetting(CTkToplevel):
-    def __init__(self, parent):
-        super().__init__(parent)
-        self.geometry('400x400')
-        self.title('Advanced Setting')
-        self.resizable(width=False, height=False)
-        
-        self.kernel_x = CTkEntry(self, placeholder_text=str(KERNEL_SHAPE[0]), width=50)
-        self.kernel_y = CTkEntry(self, placeholder_text=str(KERNEL_SHAPE[1]), width=50)
-        self.kernel_x.place(x=130, y=30)
-        self.kernel_y.place(x=190, y=30)
-        self.lb_kernel = CTkLabel(self, text="Kernel size: ")
-        self.lb_kernel.place(x=30, y=30)
-        
-        self.cb_reverse = CTkCheckBox(self, text="Reverse text after converting", variable=REVERSE, onvalue="True", offvalue="False")
-        self.cb_reverse.place(x=30, y=70)
-        
-        self.btn_apply = CTkButton(self, text="Apply", command=self.handle_apply, width=80)
-        self.btn_apply.place(x=110, y=360)
-        self.btn_ok = CTkButton(self, text="OK", command=self.handle_ok, width=80)
-        self.btn_ok.place(x=210, y=360)
-        
-    def handle_apply(self) -> None:
-        if (self.kernel_x.get() != "" and self.kernel_y.get() != ""):
-            try: 
-                global KERNEL_SHAPE
-                KERNEL_SHAPE = (int(self.kernel_x.get()), int(self.kernel_y.get()))
-            except:
-                print("KERNEL_SHAPE wrong format exception")
-                CTkMessagebox(self, title="Setting Error", message="KERNEL_SHAPE wrong format!")
-    
-    def handle_ok(self) -> None:
-        if (self.kernel_x.get() == "" or self.kernel_y.get() == ""):
-            self.destroy()
-        else:
-            try:
-                global KERNEL_SHAPE
-                KERNEL_SHAPE = (int(self.kernel_x.get()), int(self.kernel_y.get()))
-                self.destroy()
-            except:
-                print("KERNEL_SHAPE wrong format exception")
-                CTkMessagebox(self, title="Setting Error", message="KERNEL_SHAPE wrong format!")
-
 class App(CTk):
     def __init__(self):
         super().__init__()
@@ -109,6 +66,49 @@ class App(CTk):
     def handle_setting_window(self) -> None:
         window = AdvancedSetting(self)
         window.grab_set()
+
+class AdvancedSetting(CTkToplevel):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.geometry('400x400')
+        self.title('Advanced Setting')
+        self.resizable(width=False, height=False)
+        
+        self.kernel_x = CTkEntry(self, placeholder_text=str(KERNEL_SHAPE[0]), width=50)
+        self.kernel_y = CTkEntry(self, placeholder_text=str(KERNEL_SHAPE[1]), width=50)
+        self.kernel_x.place(x=130, y=30)
+        self.kernel_y.place(x=190, y=30)
+        self.lb_kernel = CTkLabel(self, text="Kernel size: ")
+        self.lb_kernel.place(x=30, y=30)
+        
+        self.cb_reverse = CTkCheckBox(self, text="Reverse text after converting", variable=REVERSE, onvalue="True", offvalue="False")
+        self.cb_reverse.place(x=30, y=70)
+        
+        self.btn_apply = CTkButton(self, text="Apply", command=self.handle_apply, width=80)
+        self.btn_apply.place(x=110, y=360)
+        self.btn_ok = CTkButton(self, text="OK", command=self.handle_ok, width=80)
+        self.btn_ok.place(x=210, y=360)
+        
+    def handle_apply(self) -> None:
+        if (self.kernel_x.get() != "" and self.kernel_y.get() != ""):
+            try: 
+                global KERNEL_SHAPE
+                KERNEL_SHAPE = (int(self.kernel_x.get()), int(self.kernel_y.get()))
+            except:
+                print("KERNEL_SHAPE wrong format exception")
+                CTkMessagebox(self, title="Setting Error", message="KERNEL_SHAPE wrong format!")
+    
+    def handle_ok(self) -> None:
+        if (self.kernel_x.get() == "" or self.kernel_y.get() == ""):
+            self.destroy()
+        else:
+            try:
+                global KERNEL_SHAPE
+                KERNEL_SHAPE = (int(self.kernel_x.get()), int(self.kernel_y.get()))
+                self.destroy()
+            except:
+                print("KERNEL_SHAPE wrong format exception")
+                CTkMessagebox(self, title="Setting Error", message="KERNEL_SHAPE wrong format!")
    
 if __name__ == "__main__":
     app = App()
