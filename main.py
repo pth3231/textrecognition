@@ -7,42 +7,44 @@ class App(CTk):
     def __init__(self):
         super().__init__()
         self.title("TextReg with Tesseract")
-        self.geometry("1024x576")
+        self.geometry("1600x900")
         self.resizable(width=False, height=False)
-        
-        # Setting up image_frame size
-        self.img_size = (540, 420)
         
         # Create btn used to open image
         self.btn_open_img = CTkButton(self, text="Open image...", command=self.handle_open_img)
-        self.btn_open_img.place(x=40, y=10)
+        self.btn_open_img.place(x=100, y=10)
         
         # Create btn used to start converting
         self.btn_convert_img = CTkButton(self, text="Convert Img to Text", command=self.handle_conversion)
-        self.btn_convert_img.place(x=40, y=60)
+        self.btn_convert_img.place(x=100, y=60)
+        
+        # Setup advanced settings
+        self.btn_advanced_setting = CTkButton(self, text="Advanced settings...", command=self.handle_setting_window)
+        self.btn_advanced_setting.place(x=100, y=110)
         
         # Create a TextBox showing the result
-        self.result = CTkTextbox(self, width=400, height=350, fg_color="#e8e8e8", text_color="#000000")
+        self.result = CTkTextbox(self, width=500, height=550, fg_color="#e8e8e8", text_color="#000000")
         self.result.place(x=20, y=200)
         
         # Create a Label indicate the state of the process
         self.process_state = CTkLabel(self, text="Pending")
         self.process_state.place(x=20, y=160)
         
-        # Setup advanced settings
-        self.btn_advanced_setting = CTkButton(self, text="Advanced settings...", command=self.handle_setting_window)
-        self.btn_advanced_setting.place(x=40, y=110)
-                
+        self.image_frame = CTkLabel(self, image=None, height=IMG_SIZE[0], width=IMG_SIZE[1], fg_color="#494949")
+        self.image_frame.place(x=550, y=50)
+            
         self.img_path = ""
         
     def handle_open_img(self) -> None:
         self.img_path = filedialog.askopenfilename(title="Open")
         print(self.img_path)
+        global IMG_SIZE
         with Image.open(self.img_path) as img:
-            img = img.resize(self.img_size)
+            size_x = int(IMG_SIZE[1] * SCALE) if int(IMG_SIZE[1] * SCALE) < 1024 else 1024
+            size_y = int(IMG_SIZE[0] * SCALE) if int(IMG_SIZE[0] * SCALE) < 720 else 720
+            img = img.resize(size=(size_x, size_y))
             img = ImageTk.PhotoImage(img)
-            self.image_frame = CTkLabel(self, image=img, height=self.img_size[0], width=self.img_size[1])
-            self.image_frame.place(x=450)
+            self.image_frame.configure(image=img)
 
     def handle_conversion(self) -> None:
         # Create OCR Model
@@ -74,15 +76,22 @@ class AdvancedSetting(CTkToplevel):
         self.title('Advanced Setting')
         self.resizable(width=False, height=False)
         
-        self.kernel_x = CTkEntry(self, placeholder_text=str(KERNEL_SHAPE[0]), width=50)
-        self.kernel_y = CTkEntry(self, placeholder_text=str(KERNEL_SHAPE[1]), width=50)
+        self.kernel_x = CTkEntry(self, placeholder_text=str(KERNEL_SHAPE[0]), width=75)
+        self.kernel_y = CTkEntry(self, placeholder_text=str(KERNEL_SHAPE[1]), width=75)
         self.kernel_x.place(x=130, y=30)
-        self.kernel_y.place(x=190, y=30)
+        self.kernel_y.place(x=210, y=30)
         self.lb_kernel = CTkLabel(self, text="Kernel size: ")
         self.lb_kernel.place(x=30, y=30)
         
         self.cb_reverse = CTkCheckBox(self, text="Reverse text after converting", variable=REVERSE, onvalue="True", offvalue="False")
         self.cb_reverse.place(x=30, y=70)
+        
+        self.lb_scale = CTkLabel(self, text="Scale: ")
+        self.lb_scale.place(x=30, y=110)
+        self.slider_scale = CTkSlider(self, from_=0.1, to=2.0, command=self.handle_slider_scale)
+        self.slider_scale.place(x=130, y=115)
+        self.lb_slider_scale = CTkLabel(self, text=str(SCALE)[0:4], width=40)
+        self.lb_slider_scale.place(x=330, y=110)
         
         self.btn_apply = CTkButton(self, text="Apply", command=self.handle_apply, width=80)
         self.btn_apply.place(x=110, y=360)
@@ -97,6 +106,7 @@ class AdvancedSetting(CTkToplevel):
             except:
                 print("KERNEL_SHAPE wrong format exception")
                 CTkMessagebox(self, title="Setting Error", message="KERNEL_SHAPE wrong format!")
+
     
     def handle_ok(self) -> None:
         if (self.kernel_x.get() == "" or self.kernel_y.get() == ""):
@@ -109,9 +119,18 @@ class AdvancedSetting(CTkToplevel):
             except:
                 print("KERNEL_SHAPE wrong format exception")
                 CTkMessagebox(self, title="Setting Error", message="KERNEL_SHAPE wrong format!")
+                
+    def handle_slider_scale(self, value):
+        global SCALE
+        SCALE = value
+        self.lb_slider_scale.configure(text=str(SCALE)[0:4])
+        print(SCALE)
+        
    
 if __name__ == "__main__":
+    KERNEL_SHAPE: tuple = (20, 20)
+    IMG_SIZE: tuple = (728, 1024)
+    SCALE: float = 1.0
     app = App()
     REVERSE: StringVar = StringVar(app, value="False")
-    KERNEL_SHAPE: tuple = (20, 20)
     app.mainloop()
