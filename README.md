@@ -1,4 +1,8 @@
-Python text recognition for endterm project
+Python text recognition for end-term project
+
+# Install required dependencies
+
+Run install_deps.bat as an administrator (already installed packages will be automatically skipped)
 
 # Install Tesseract
 
