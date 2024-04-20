@@ -1,15 +1,8 @@
-Native S| Clear all
-
-All languages ~ —Allplatforms + Allprojecttypes -
-Leg, SB Unt Prec
-= Write C++ unit tests using the lig Microsoft CppUnitTest framework.
-— ces Windows Test
-ej AE Poet
-a t+ Create small, fast Component Object Model (COM) objects using the Active
-Template Library (ATL).
-
-+ Windows Desktop
-
-‘Not finding what you're looking for?
-Install more tools and features
+‘The substance in petrol that is very toxic, carcinogenic,
+and an arene (a type of aromatic hydrocarbon) is
+Benzene. Benzene is a well-known carcinogen and is
+present in small amounts in gasoline. Please note that
+lexposure to benzene can have serious health effects,
+so it's important to handle gasoline and other
+petroleum products safely.
 

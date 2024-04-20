@@ -30,11 +30,11 @@ class Model():
 		file = open("./test/recognized.txt", "w+")
 		file.write("")
 		file.close()
-
+		print(self.contours)
 		# Looping through the identified contours then rectangular part is cropped and passed on to pytesseract for extracting text from it
 		# Extracted text is then written into the text file
-		for cnt in self.contours:
-			x, y, w, h = cv2.boundingRect(cnt)
+		for self.cnt in self.contours:
+			x, y, w, h = cv2.boundingRect(self.cnt)
 			# Drawing a rectangle on copied image
 			rect = cv2.rectangle(self.im2, (x, y), (x + w, y + h), (0, 255, 0), 2)
 			# Cropping the text block for giving input to OCR
