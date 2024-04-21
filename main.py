@@ -5,10 +5,21 @@ from PIL import ImageTk, Image
 from text_reg import Model
 from CTkMessagebox import CTkMessagebox
 import subprocess
+import webbrowser
 
 class Docs(CTkFrame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.btn_github = CTkButton(self, text="Our repo", width=70, command=self.handle_open_repo)
+        self.btn_github.place(x=5, y=5)
+        self.btn_github = CTkButton(self, text="Bugs", width=50, command=self.handle_bug_report)
+        self.btn_github.place(x=80, y=5)
+        
+    def handle_open_repo(self):
+        webbrowser.open("https://github.com/pth3231/textrecognition")
+        
+    def handle_bug_report(self):
+        webbrowser.open("https://github.com/pth3231/textrecognition/issues")
 
 class AdvancedSetting(CTkToplevel):
     def __init__(self, master, FONT_SIZE: int, REVERSE: bool, KERNEL_SHAPE: tuple, SCALE: float):
@@ -35,7 +46,7 @@ class AdvancedSetting(CTkToplevel):
         
         self.lb_font_size = CTkLabel(self, text="Font size:")
         self.lb_font_size.place(x=30, y=150)
-        self.font_size = CTkEntry(self, placeholder_text=str(FONT_SIZE), width=80)
+        self.font_size = CTkEntry(self, placeholder_text=str(FONT_SIZE), width=75)
         self.font_size.place(x=110, y=150)
         
         self.btn_apply = CTkButton(self, text="Apply", command=self.handle_apply, width=80)
@@ -44,25 +55,33 @@ class AdvancedSetting(CTkToplevel):
         self.btn_ok.place(x=210, y=360)
 
     def handle_apply(self) -> None:
-        if (self.kernel_x.get() != "" and self.kernel_y.get() != ""):
-            try: 
-                global KERNEL_SHAPE
-                KERNEL_SHAPE = (int(self.kernel_x.get()), int(self.kernel_y.get()))
-            except:
-                print("KERNEL_SHAPE wrong format exception")
-                CTkMessagebox(self, title="Setting Error", message="KERNEL_SHAPE wrong format!")
+        try:
+            global KERNEL_SHAPE, FONT_SIZE
+            new_kernel_shape = [0, 0]
+            new_kernel_shape[0] = int(self.kernel_x.get()) if self.kernel_x.get() != "" else KERNEL_SHAPE[0]
+            new_kernel_shape[1] = int(self.kernel_y.get()) if self.kernel_y.get() != "" else KERNEL_SHAPE[1]
+            KERNEL_SHAPE = tuple(new_kernel_shape)
+            FONT_SIZE = int(self.font_size.get()) if len(self.font_size.get()) != 0 else FONT_SIZE
+            print(KERNEL_SHAPE)
+            print(FONT_SIZE)
+        except:
+            print("Wrong format exception")
+            CTkMessagebox(self, title="Setting Error", message="Wrong format!")
     
     def handle_ok(self) -> None:
-        if (self.kernel_x.get() == "" or self.kernel_y.get() == ""):
+        try:
+            global KERNEL_SHAPE, FONT_SIZE
+            new_kernel_shape = [0, 0]
+            new_kernel_shape[0] = int(self.kernel_x.get()) if self.kernel_x.get() != "" else KERNEL_SHAPE[0]
+            new_kernel_shape[1] = int(self.kernel_y.get()) if self.kernel_y.get() != "" else KERNEL_SHAPE[1]
+            KERNEL_SHAPE = tuple(new_kernel_shape)
+            FONT_SIZE = int(self.font_size.get()) if self.font_size.get() != "" else FONT_SIZE
+            print(KERNEL_SHAPE)
+            print(FONT_SIZE)
             self.destroy()
-        else:
-            try:
-                global KERNEL_SHAPE
-                KERNEL_SHAPE = (int(self.kernel_x.get()), int(self.kernel_y.get()))
-                self.destroy()
-            except:
-                print("KERNEL_SHAPE wrong format exception")
-                CTkMessagebox(self, title="Setting Error", message="KERNEL_SHAPE wrong format!")
+        except:
+            print("Wrong format exception")
+            CTkMessagebox(self, title="Setting Error", message="Wrong format!")
                 
     def handle_slider_scale(self, value):
         global SCALE
@@ -90,30 +109,37 @@ class App(CTk):
         self.btn_advanced_setting.place(x=230, y=150)
         
         # Create a TextBox showing the result
-        self.result = CTkTextbox(self, width=500, height=560, fg_color="#484848", text_color="#ffffff", font=("Open Sans", 16))
+        self.result = CTkTextbox(self, width=500, height=560, fg_color="#484848", text_color="#ffffff", font=("Open Sans", FONT_SIZE))
         self.result.place(x=20, y=200)
         
         # Create a Label indicate the state of the process
         self.process_state = CTkLabel(self, text="Pending", justify="right")
         self.process_state.place(x=410, y=775)
         
+        # Create a Label in order to show the image
         self.image_frame = CTkLabel(self, image=None, text="Image Preview will be displayed here...", height=IMG_SIZE[0], width=IMG_SIZE[1], fg_color="#494949", font=("Consolas", 16))
         self.image_frame.place(x=550, y=30)
         
+        # Title
         self.main_title = CTkLabel(self, text="Textifier", font=("Open Sans", 28), height=50)
         self.main_title.place(x=210, y=50)
         
+        # Progress Bar
         self.prog_bar = CTkProgressBar(self, orientation="horizontal", mode="determinate", width=100, height=20)
         self.prog_bar.place(x=550, y=780)
         self.lb_prog_bar = CTkLabel(self, text="0")
         self.lb_prog_bar.place(x=670, y=777.5)
         self.prog_bar.set(0)
         
+        # Documentation, Bug report and Updates
+        self.docs_frame = Docs(self, width=135, height=40)
+        self.docs_frame.place(x=1440, y=770)
+        
         self.img_path = ""
         self.window = None
         
     def handle_open_img(self) -> None:
-        self.img_path = filedialog.askopenfilename(title="Open")
+        self.img_path = filedialog.askopenfilename(title="Open...")
         print(self.img_path)
         global IMG_SIZE
         with Image.open(self.img_path, "r") as img:
@@ -122,7 +148,7 @@ class App(CTk):
             print(f"Size of the result: {(size_x, size_y)}")
             img = ImageTk.PhotoImage(
                 img.resize(
-                    size=(size_x, size_y)
+                        size=(size_x, size_y)
                     )
                 )
             self.image_frame.configure(image=img, text="")
