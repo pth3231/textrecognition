@@ -5,7 +5,7 @@ import darkdetect
 from PIL import ImageTk, Image
 from text_reg import Model
 from CTkMessagebox import CTkMessagebox
-import subprocess
+# import subprocess
 import webbrowser
 import win32com.client
 
@@ -24,7 +24,7 @@ class Docs(CTkFrame):
         webbrowser.open("https://github.com/pth3231/textrecognition/issues")
 
 class AdvancedSetting(CTkToplevel):
-    def __init__(self, master, FONT_SIZE: int, REVERSE: bool, KERNEL_SHAPE: tuple, SCALE: float, CURRENT_THEME: str):
+    def __init__(self, master, FONT_SIZE: int, REVERSE: bool, KERNEL_SHAPE: tuple, SCALE: float, CURRENT_THEME: str, VOLUME: int):
         super().__init__(master)
         self.geometry('400x400')
         self.title('Textifier')
@@ -62,6 +62,14 @@ class AdvancedSetting(CTkToplevel):
         self.theme.set(CURRENT_THEME)
         self.theme.place(x=100, y=190)
         
+        self.lb_volume = CTkLabel(self, text="Volume: ")
+        self.lb_volume.place(x=30, y=230)
+        self.slider_volume = CTkSlider(self, from_=0, to=100, number_of_steps=100, command=lambda val: self.lb_slider_volume.configure(text=str(int(val))))
+        self.slider_volume.set(VOLUME)
+        self.slider_volume.place(x=130, y=235)
+        self.lb_slider_volume = CTkLabel(self, text=str(VOLUME), width=40)
+        self.lb_slider_volume.place(x=330, y=230)
+        
         self.btn_apply = CTkButton(self, text="Apply", command=self.handle_apply, width=80)
         self.btn_apply.place(x=110, y=360)
         self.btn_ok = CTkButton(self, text="OK", command=self.handle_ok, width=80)
@@ -92,11 +100,13 @@ class AdvancedSetting(CTkToplevel):
                     app.image_frame.configure(fg_color="#494949")
             REVERSE = self.cb_reverse.get()
             SCALE = self.slider_scale.get()
+            app.speaker.Volume = int(self.slider_volume.get())
             print(KERNEL_SHAPE)
             print(FONT_SIZE)
             print(CURRENT_THEME)
             print(REVERSE)
             print(SCALE)
+            print(app.speaker.Volume)
         except:
             print("Wrong format exception")
             CTkMessagebox(self, title="Setting Error", message="Wrong format!")
@@ -126,11 +136,13 @@ class AdvancedSetting(CTkToplevel):
                     app.image_frame.configure(fg_color="#494949")
             REVERSE = self.cb_reverse.get()
             SCALE = self.slider_scale.get()
+            app.speaker.Volume = int(self.slider_volume.get())
             print(KERNEL_SHAPE)
             print(FONT_SIZE)
             print(CURRENT_THEME)
             print(REVERSE)
             print(SCALE)
+            print(app.speaker.Volume)
             self.destroy()
         except:
             print("Wrong format exception")
@@ -244,7 +256,7 @@ class App(CTk):
             self.process_state.configure(text="No imported image")
 
     def handle_setting_window(self) -> None:
-        self.window = AdvancedSetting(self, FONT_SIZE, REVERSE, KERNEL_SHAPE, SCALE, CURRENT_THEME)
+        self.window = AdvancedSetting(self, FONT_SIZE, REVERSE, KERNEL_SHAPE, SCALE, CURRENT_THEME, self.speaker.Volume)
         self.window.grab_set()
     
     def handle_tts(self) -> None:
